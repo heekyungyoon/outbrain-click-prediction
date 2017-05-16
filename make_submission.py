@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 # -*- coding:utf-8 -*-
+import sys
 from os import path
 import pandas as pd
 import subprocess
 
-version = "1_2"
+version = "{}_{}".format(sys.argv[1], sys.argv[2])
 
 input_path = "../input"
 pred_path = "pred/"
