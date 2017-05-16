@@ -37,6 +37,7 @@ struct ffm_model
     ffm_int m;
     ffm_int k;
     ffm_float *W;
+    ffm_float *LW; //linear weight
     bool normalization;
 };
 

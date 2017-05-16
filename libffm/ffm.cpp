@@ -49,6 +49,9 @@ inline ffm_float wTx(
 
     __m128 XMMt = _mm_setzero_ps();
 
+    ffm_float lt = 0;
+    float linear_norm = end - begin;
+
     for(ffm_node *N1 = begin; N1 != end; N1++)
     {
         ffm_int j1 = N1->j;
@@ -56,6 +59,19 @@ inline ffm_float wTx(
         ffm_float v1 = N1->v;
         if(j1 >= model.n || f1 >= model.m)
             continue;
+
+        if(do_update)
+        {
+            ffm_float g = lambda * model.LW[j1*2] + kappa * v1 / linear_norm;
+            ffm_float wg = model.LW[j1*2 + 1] + g*g;
+
+            model.LW[j1*2] -= eta * g / sqrt(wg);
+            model.LW[j1*2 + 1] = wg;
+        }
+        else
+        {
+            lt += v1 * model.LW[j1*2] / linear_norm;
+        }
 
         for(ffm_node *N2 = N1+1; N2 != end; N2++)
         {
@@ -128,7 +144,7 @@ inline ffm_float wTx(
     ffm_float t;
     _mm_store_ss(&t, XMMt);
 
-    return t;
+    return lt + t;
 }
 
 ffm_float* malloc_aligned_float(ffm_long size)
@@ -157,11 +173,22 @@ ffm_model* init_model(ffm_int n, ffm_int m, ffm_parameter param)
     model->k = k_aligned;
     model->m = m;
     model->W = nullptr;
+    model->LW = nullptr;
     model->normalization = param.normalization;
     
     try
     {
         model->W = malloc_aligned_float((ffm_long)n*m*k_aligned*2);
+    }
+    catch(bad_alloc const &e)
+    {
+        ffm_destroy_model(&model);
+        throw;
+    }
+
+    try
+    {
+        model->LW = malloc_aligned_float((ffm_long)n*2);
     }
     catch(bad_alloc const &e)
     {
@@ -186,6 +213,13 @@ ffm_model* init_model(ffm_int n, ffm_int m, ffm_parameter param)
             for(ffm_int d = k_aligned; d < 2*k_aligned; d++, w++)
                 *w = 1;
         }
+    }
+
+    ffm_float *lw = model->LW;
+    for(ffm_int j = 0; j < model->n; j++)
+    {
+        *lw++ = 0;
+        *lw++ = 1;
     }
 
     return model;
@@ -256,9 +290,12 @@ shared_ptr<ffm_model> train(
 
     ffm_int k_aligned = (ffm_int)ceil((ffm_double)param.k/kALIGN)*kALIGN;
     ffm_long w_size = (ffm_long)model->n * model->m * k_aligned * 2;
+    ffm_long lw_size = (ffm_long)model->n;
     vector<ffm_float> prev_W;
+    vector<ffm_float> prev_LW;
     if(auto_stop)
         prev_W.assign(w_size, 0);
+        prev_LW.assign(lw_size, 0);
     ffm_double best_va_loss = numeric_limits<ffm_double>::max();
 
     if(!param.quiet)
@@ -349,12 +386,14 @@ shared_ptr<ffm_model> train(
                     if(va_loss > best_va_loss)
                     {
                         memcpy(model->W, prev_W.data(), w_size*sizeof(ffm_float));
+                        memcpy(model->LW, prev_LW.data(), lw_size*sizeof(ffm_float));
                         cout << endl << "Auto-stop. Use model at " << iter-1 << "th iteration." << endl;
                         break;
                     }
                     else
                     {
                         memcpy(prev_W.data(), model->W, w_size*sizeof(ffm_float));
+                        memcpy(prev_LW.data(), model->LW, lw_size*sizeof(ffm_float));
                         best_va_loss = va_loss; 
                     }
                 }
@@ -784,6 +823,12 @@ ffm_int ffm_save_model(ffm_model *model, char const *path)
         }
     }
 
+    ffm_float *ptr2 = model->LW;
+    for(ffm_int j = 0; j < model->n; j++, ptr2 += 2*sizeof(ffm_float))
+    {
+        f_out << "w" << j << " " << *ptr2 << "\n";
+    }
+
     return 0;
 }
 
@@ -811,6 +856,16 @@ ffm_model* ffm_load_model(char const *path)
         return nullptr;
     }
 
+    try
+    {
+        model->LW = malloc_aligned_float((ffm_long)model->n*2);
+    }
+    catch(bad_alloc const &e)
+    {
+        ffm_destroy_model(&model);
+        throw;
+    }
+
     ffm_float *ptr = model->W;
     for(ffm_int j = 0; j < model->n; j++)
     {
@@ -822,6 +877,13 @@ ffm_model* ffm_load_model(char const *path)
         }
     }
 
+    ffm_float *ptr2 = model->LW;
+    for(ffm_int j = 0; j < model->n; j++, ptr2++)
+    {
+        f_in >> dummy;
+        f_in >> *ptr2;
+    }
+
     return model;
 }
 
@@ -831,8 +893,10 @@ void ffm_destroy_model(ffm_model **model)
         return;
 #ifdef _WIN32
     _aligned_free((*model)->W);
+    _aligned_free((*model)->LW);
 #else
     free((*model)->W);
+    free((*model)->LW);
 #endif
     delete *model;
     *model = nullptr;
@@ -872,6 +936,9 @@ ffm_model* ffm_train_with_validation(ffm_problem *tr, ffm_problem *va, ffm_param
 
     model_ret->W = model->W;
     model->W = nullptr;
+
+    model_ret->LW = model->LW;
+    model->LW = nullptr;
 
     return model_ret;
 }
