@@ -21,7 +21,7 @@ Make submission file
 ```$ g++ -std=c++11 main.cpp data.h -o main -lboost_iostreams -lpthread```
 
 Move to libffm directory:  
-```make```  
+```$ make```  
 
 Come back to parent directory:  
-```python run.py```
+```$ python run.py```
