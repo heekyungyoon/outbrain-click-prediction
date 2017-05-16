@@ -1,0 +1,9 @@
+main
+*.pyc
+.idea
+CMakeLists.txt
+cmake-build-debug/
+libffm/ffm-train
+libffm/ffm-predict
+libffm/ffm.o
+
