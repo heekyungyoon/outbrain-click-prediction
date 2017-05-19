@@ -22,7 +22,7 @@ Transform data into ffm format
 - gen_ffm_format.py  
 
 Train & Predict  
-- libffm
+- libffm (customized to incorporate linear weights)
 
 Make submission file
 - make_submission.py  
