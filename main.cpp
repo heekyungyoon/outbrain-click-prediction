@@ -16,13 +16,13 @@ ad_characterstic_map gen_ad_characteristic_map(std::string filename, bool is_ent
 std::map<std::string, ad_characterstic_map> gen_ad_characteristic_map_set(std::string doc_construct);
 void gen_user_topic_map(
         int tid,
-        user_topic_map *user_topic_map,
+        user_characteristic_map *user_topic_map,
         std::string filename,
         int start_row,
         int end_row,
         document_topic_map *doc_topic_map,
-        user_topic_map *user_topic_ref);
-std::vector<user_topic_map> gen_user_topic_map_set(std::string doc_filename, display_map *display_map, bool is_entity);
+        user_characteristic_map *user_topic_ref);
+std::vector<user_characteristic_map> gen_user_topic_map_set(std::string doc_filename, display_map *display_map, bool is_entity);
 void write_user_ad_interaction_on_topic(
         std::string doc_type,
         std::string doc_file,
@@ -119,12 +119,12 @@ std::map<std::string, ad_characterstic_map> gen_ad_characteristic_map_set(
 
 void gen_user_topic_map(
         int tid,
-        user_topic_map *user_topic_map,
+        user_characteristic_map *user_topic_map,
         std::string filename,
         int start_row,
         int end_row,
         document_topic_map *doc_topic_map,
-        user_topic_map *user_topic_ref)
+        user_characteristic_map *user_topic_ref)
 {
     std::string uuid;
     std::string document_id;
@@ -196,7 +196,7 @@ void gen_user_topic_map(
 
 
 
-std::vector<user_topic_map> gen_user_topic_map_set(
+std::vector<user_characteristic_map> gen_user_topic_map_set(
         std::string doc_filename,
         display_map *display_map,
         bool is_entity
@@ -208,11 +208,11 @@ std::vector<user_topic_map> gen_user_topic_map_set(
 
     // 2. generate user topic reference map
     // <display_id, <uuid, document_id>>
-    user_topic_map user_topic_ref = gen_user_topic_ref(
+    user_characteristic_map user_topic_ref = gen_user_topic_ref(
             display_map, &doc_topic_map);
 
     // 3. user topic map set
-    std::vector<user_topic_map> user_topic_map_set;
+    std::vector<user_characteristic_map> user_topic_map_set;
     std::string filename = "../input/page_views.csv.gz";
     //std::string filename = "../input/page_views_sample.csv.gz";
 
@@ -221,7 +221,7 @@ std::vector<user_topic_map> gen_user_topic_map_set(
 
     //init user_topic_map
     for (int i = 0; i < num_thread; ++i) {
-        user_topic_map user_topic_map;
+        user_characteristic_map user_topic_map;
         user_topic_map_set.push_back(user_topic_map);
     }
 
@@ -252,7 +252,7 @@ int calc_user_ad_interaction_topic(
         std::string click_file,
         int (*get_key) (ad),
         std::map<std::string, ad_characterstic_map> *ad_topic_map_set,
-        std::vector<user_topic_map> *user_topic_map_set,
+        std::vector<user_characteristic_map> *user_topic_map_set,
         ad_map *ad_map,
         display_map *display_map
 )
@@ -353,7 +353,7 @@ void write_user_ad_interaction_on_topic(
             doc_type);
 
     // <<uuid, topic_id>, sum_confidence_level>
-    std::vector<user_topic_map> user_topic_map_set = gen_user_topic_map_set(
+    std::vector<user_characteristic_map> user_topic_map_set = gen_user_topic_map_set(
             doc_file, display_map, is_entity);
 
     // II. calculate user-document interaction in terms of topic

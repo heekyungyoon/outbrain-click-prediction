@@ -31,7 +31,7 @@ struct ad {
 
 
 typedef std::unordered_map<int, std::vector<int>> ad_characterstic_map;
-typedef std::unordered_map<std::pair<int, int>, float, pairhash> user_topic_map;
+typedef std::unordered_map<std::pair<int, int>, float, pairhash> user_characteristic_map;
 typedef std::unordered_map<int, std::vector<std::pair<int, float>>> document_topic_map;
 typedef std::unordered_map<int, std::pair<int, int>> display_map;
 typedef std::unordered_map<int, ad> ad_map;
@@ -198,12 +198,12 @@ document_topic_map gen_doc_topic_map(
 };
 
 
-user_topic_map gen_user_topic_ref(
+user_characteristic_map gen_user_topic_ref(
         display_map *display_map,
         document_topic_map *doc_topic_map)
 {
     // read events to get uuid and document id from clicks_train
-    user_topic_map user_topic_ref;
+    user_characteristic_map user_topic_ref;
 
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     std::cout << "Start generating user topic reference map " << std::endl;
