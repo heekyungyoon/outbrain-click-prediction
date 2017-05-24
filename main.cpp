@@ -15,6 +15,8 @@
 typedef std::unordered_map<int, std::vector<int>> ad_characterstic_map;
 typedef std::unordered_map<std::pair<int, int>, float, pairhash> user_topic_map;
 typedef std::unordered_map<int, std::vector<std::pair<int, float>>> document_topic_map;
+typedef std::unordered_map<int, std::pair<int, int>> display_map;
+typedef std::unordered_map<int, ad> ad_map;
 
 
 ad_characterstic_map gen_ad_characteristic_map(std::string filename, bool is_entity);
@@ -27,16 +29,12 @@ void gen_user_topic_map(
         int end_row,
         document_topic_map *doc_topic_map,
         user_topic_map *user_topic_ref);
-std::vector<user_topic_map> gen_user_topic_map_set(
-        std::string doc_filename,
-std::unordered_map<int, std::pair<int, int>> *display_map,
-bool is_entity
-);
+std::vector<user_topic_map> gen_user_topic_map_set(std::string doc_filename, display_map *display_map, bool is_entity);
 void write_user_ad_interaction_on_topic(
         std::string doc_type,
         std::string doc_file,
-        std::unordered_map<int, std::pair<int, int>> *display_map,
-        std::unordered_map<int, ad> *ad_map
+        display_map *display_map,
+        ad_map *ad_map
 )
 
 
@@ -207,7 +205,7 @@ void gen_user_topic_map(
 
 std::vector<user_topic_map> gen_user_topic_map_set(
         std::string doc_filename,
-        std::unordered_map<int, std::pair<int, int>> *display_map,
+        display_map *display_map,
         bool is_entity
 )
 {
@@ -262,8 +260,8 @@ int calc_user_ad_interaction_topic(
         int (*get_key) (ad),
         std::map<std::string, ad_characterstic_map> *ad_topic_map_set,
         std::vector<user_topic_map> *user_topic_map_set,
-        std::unordered_map<int, ad> *ad_map,
-        std::unordered_map<int, std::pair<int, int>> *display_map
+        ad_map *ad_map,
+        display_map *display_map
 )
 {
     std::string outfile_name = "cache/clicks_" + click_file + "_user_"+ ad_type +"_interaction_on_" + doc_type + ".csv.gz";
@@ -349,8 +347,8 @@ int calc_user_ad_interaction_topic(
 void write_user_ad_interaction_on_topic(
         std::string doc_type,
         std::string doc_file,
-        std::unordered_map<int, std::pair<int, int>> *display_map,
-        std::unordered_map<int, ad> *ad_map
+        display_map *display_map,
+        ad_map *ad_map
 ){
     bool is_entity = false;
     if (doc_type == "entity") {
@@ -380,9 +378,9 @@ int main() {
             {"category", "../input/documents_categories.csv.gz"}};
 
     // <display id, <uuid, document_id>>
-    std::unordered_map<int, std::pair<int, int>> display_map = gen_display_map();
+    display_map display_map = gen_display_map();
     // <ad_id, ad>
-    std::unordered_map<int, ad> ad_map = gen_ad_map();
+    ad_map ad_map = gen_ad_map();
 
     ////user ad interaction on topic
     write_user_ad_interaction_on_topic("topic", doc_files["topic"], &display_map, &ad_map);
