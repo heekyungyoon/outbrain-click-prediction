@@ -13,6 +13,16 @@
 #include <chrono>
 
 
+struct pairhash {
+public:
+    template <typename T, typename U>
+    std::size_t operator()(const std::pair<T, U> &x) const
+    {
+        return std::hash<T>()(x.first) ^ std::hash<U>()(x.second);
+    }
+};
+
+
 typedef std::unordered_map<int, std::vector<int>> ad_characterstic_map;
 typedef std::unordered_map<std::pair<int, int>, float, pairhash> user_topic_map;
 typedef std::unordered_map<int, std::vector<std::pair<int, float>>> document_topic_map;
@@ -50,16 +60,6 @@ int get_entity_id(std::string &uuid) {
     }
     return uid;
 }
-
-
-struct pairhash {
-public:
-    template <typename T, typename U>
-    std::size_t operator()(const std::pair<T, U> &x) const
-    {
-        return std::hash<T>()(x.first) ^ std::hash<U>()(x.second);
-    }
-};
 
 
 struct ad {
