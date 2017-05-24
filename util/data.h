@@ -37,6 +37,22 @@ typedef std::unordered_map<int, std::pair<int, int>> display_map;
 typedef std::unordered_map<int, ad> ad_map;
 
 
+class Timer {
+private:
+    std::chrono::steady_clock::time_point begin;
+public:
+    Timer() {
+        begin = std::chrono::steady_clock::now();
+    }
+    void finish() {
+        std::cout << "Time taken (sec): "
+                  << std::chrono::duration_cast<std::chrono::seconds> (std::chrono::steady_clock::now() - begin).count()
+                  << "\n"
+                  << std::endl;
+    }
+};
+
+
 std::unordered_map<std::string, int> uuid_map;
 
 

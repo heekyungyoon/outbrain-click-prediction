@@ -42,7 +42,7 @@ ad_characterstic_map gen_ad_characteristic_map(
     std::string id2;
     std::string others;
 
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    Timer tmr;
     std::cout << "Start processing " << filename << std::endl;
 
     std::ifstream file(filename, std::ios_base::in | std::ios_base::binary);
@@ -86,12 +86,8 @@ ad_characterstic_map gen_ad_characteristic_map(
     }
     //Cleanup
 
-    std::cout << "\nrow_count = " << row_count
-              << "\nTime taken (sec): "
-              << std::chrono::duration_cast<std::chrono::seconds>
-                      (std::chrono::steady_clock::now() - begin).count()
-              << "\n"
-              << std::endl;
+    std::cout << "\nrow_count = " << row_count << std::endl;
+    tmr.finish();
 
     return ad_characteristic_map;
 };
@@ -131,7 +127,7 @@ void gen_user_topic_map(
     std::string others;
 
     // I. calculate user-topic interaction based on page_views
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    Timer tmr;
     std::cout << tid << "Start processing " << filename << std::endl;
 
     std::ifstream file(filename, std::ios_base::in | std::ios_base::binary);
@@ -186,12 +182,8 @@ void gen_user_topic_map(
     //Cleanup
     file.close();
 
-    std::cout << "\nrow_count = " << row_count <<" (" << start_row << " - " << end_row << ")"
-              << "\nTime taken (sec): "
-              << std::chrono::duration_cast<std::chrono::seconds>
-                      (std::chrono::steady_clock::now() - begin).count()
-              << "\n"
-              << std::endl;
+    std::cout << "\nrow_count = " << row_count <<" (" << start_row << " - " << end_row << ")" << std::endl;
+    tmr.finish();
 }
 
 
@@ -264,7 +256,8 @@ int calc_user_ad_interaction_topic(
     std::string ad_id;
     std::string others;
     ad_characterstic_map vec = (*ad_topic_map_set)[ad_type+doc_type];
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+    Timer tmr;
     std::cout << "Start generating " << outfile_name << std::endl;
 
     std::ifstream test_file(filename, std::ios_base::in | std::ios_base::binary);
@@ -328,11 +321,9 @@ int calc_user_ad_interaction_topic(
 
     test_file.close();
 
-    std::cout << "\ni = " << i <<"\nTime taken (sec): "
-              << std::chrono::duration_cast<std::chrono::seconds>
-                      (std::chrono::steady_clock::now() - begin).count()
-              << "\n"
-              << std::endl;
+    std::cout << "\ni = " << i << std::endl;
+    tmr.finish();
+
     return 0;
 }
 
