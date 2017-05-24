@@ -13,6 +13,7 @@
 
 
 typedef std::unordered_map<int, std::vector<int>> ad_characterstic_map;
+typedef std::unordered_map<std::pair<int, int>, float, pairhash> user_topic_map;
 
 ad_characterstic_map gen_ad_characteristic_map(
         std::string filename,
@@ -23,13 +24,13 @@ std::map<std::string, ad_characterstic_map> gen_ad_characteristic_map_set(
 );
 void gen_user_topic_map(
         int tid,
-        std::unordered_map<std::pair<int, int>, float, pairhash> *user_topic_map,
+        user_topic_map *user_topic_map,
         std::string filename,
         int start_row,
         int end_row,
         std::unordered_map<int, std::vector<std::pair<int, float>>> *doc_topic_map,
-        std::unordered_map<std::pair<int, int>, float, pairhash> *user_topic_ref);
-std::vector<std::unordered_map<std::pair<int, int>, float, pairhash>> gen_user_topic_map_set(
+        user_topic_map *user_topic_ref);
+std::vector<user_topic_map> gen_user_topic_map_set(
         std::string doc_filename,
 std::unordered_map<int, std::pair<int, int>> *display_map,
 bool is_entity
@@ -130,12 +131,12 @@ std::map<std::string, ad_characterstic_map> gen_ad_characteristic_map_set(
 
 void gen_user_topic_map(
         int tid,
-        std::unordered_map<std::pair<int, int>, float, pairhash> *user_topic_map,
+        user_topic_map *user_topic_map,
         std::string filename,
         int start_row,
         int end_row,
         std::unordered_map<int, std::vector<std::pair<int, float>>> *doc_topic_map,
-        std::unordered_map<std::pair<int, int>, float, pairhash> *user_topic_ref)
+        user_topic_map *user_topic_ref)
 {
     std::string uuid;
     std::string document_id;
@@ -207,7 +208,7 @@ void gen_user_topic_map(
 
 
 
-std::vector<std::unordered_map<std::pair<int, int>, float, pairhash>> gen_user_topic_map_set(
+std::vector<user_topic_map> gen_user_topic_map_set(
         std::string doc_filename,
         std::unordered_map<int, std::pair<int, int>> *display_map,
         bool is_entity
@@ -219,11 +220,11 @@ std::vector<std::unordered_map<std::pair<int, int>, float, pairhash>> gen_user_t
 
     // 2. generate user topic reference map
     // <display_id, <uuid, document_id>>
-    std::unordered_map<std::pair<int, int>, float, pairhash> user_topic_ref = gen_user_topic_ref(
+    user_topic_map user_topic_ref = gen_user_topic_ref(
             display_map, &doc_topic_map);
 
     // 3. user topic map set
-    std::vector<std::unordered_map<std::pair<int, int>, float, pairhash>> user_topic_map_set;
+    std::vector<user_topic_map> user_topic_map_set;
     std::string filename = "../input/page_views.csv.gz";
     //std::string filename = "../input/page_views_sample.csv.gz";
 
@@ -232,7 +233,7 @@ std::vector<std::unordered_map<std::pair<int, int>, float, pairhash>> gen_user_t
 
     //init user_topic_map
     for (int i = 0; i < num_thread; ++i) {
-        std::unordered_map<std::pair<int, int>, float, pairhash> user_topic_map;
+        user_topic_map user_topic_map;
         user_topic_map_set.push_back(user_topic_map);
     }
 
@@ -263,7 +264,7 @@ int calc_user_ad_interaction_topic(
         std::string click_file,
         int (*get_key) (ad),
         std::map<std::string, ad_characterstic_map> *ad_topic_map_set,
-        std::vector<std::unordered_map<std::pair<int, int>, float, pairhash>> *user_topic_map_set,
+        std::vector<user_topic_map> *user_topic_map_set,
         std::unordered_map<int, ad> *ad_map,
         std::unordered_map<int, std::pair<int, int>> *display_map
 )
@@ -364,7 +365,7 @@ void write_user_ad_interaction_on_topic(
             doc_type);
 
     // <<uuid, topic_id>, sum_confidence_level>
-    std::vector<std::unordered_map<std::pair<int, int>, float, pairhash>> user_topic_map_set = gen_user_topic_map_set(
+    std::vector<user_topic_map> user_topic_map_set = gen_user_topic_map_set(
             doc_file, display_map, is_entity);
 
     // II. calculate user-document interaction in terms of topic
