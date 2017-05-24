@@ -35,7 +35,7 @@ void write_user_ad_interaction_on_topic(
         std::string doc_file,
         display_map *display_map,
         ad_map *ad_map
-)
+);
 
 
 ad_characterstic_map gen_ad_characteristic_map(
