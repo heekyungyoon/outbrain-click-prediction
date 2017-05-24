@@ -113,7 +113,7 @@ display_map gen_display_map()
     std::string document_id;
     std::string others;
 
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    Timer tmr;
     std::cout << "Start processing " << filename << std::endl;
 
     std::ifstream file(filename, std::ios_base::in | std::ios_base::binary);
@@ -143,11 +143,9 @@ display_map gen_display_map()
 
     file.close();
 
-    std::cout << "\ni = " << i <<"\nTime taken (sec): "
-              << std::chrono::duration_cast<std::chrono::seconds>
-                      (std::chrono::steady_clock::now() - begin).count()
-              << "\n"
-              << std::endl;
+    std::cout << "\ni = " << i << std::endl;
+    tmr.finish();
+
     return display_map;
 }
 
@@ -163,7 +161,7 @@ document_topic_map gen_doc_topic_map(
     std::string confidence_level;
     std::string others;
 
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    Timer tmr;
     std::cout << "Start processing " << filename << std::endl;
 
     std::ifstream topic_file(filename, std::ios_base::in | std::ios_base::binary);
@@ -213,11 +211,8 @@ document_topic_map gen_doc_topic_map(
 
     topic_file.close();
 
-    std::cout << "\ni = " << i <<"\nTime taken (sec): "
-              << std::chrono::duration_cast<std::chrono::seconds>
-                      (std::chrono::steady_clock::now() - begin).count()
-              << "\n"
-              << std::endl;
+    std::cout << "\ni = " << i << std::endl;
+    tmr.finish();
 
     return doc_topic;
 };
@@ -230,7 +225,7 @@ user_characteristic_map gen_user_topic_ref(
     // read events to get uuid and document id from clicks_train
     user_characteristic_map user_topic_ref;
 
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    Timer tmr;
     std::cout << "Start generating user topic reference map " << std::endl;
 
     int i = 0; //rows
@@ -254,11 +249,9 @@ user_characteristic_map gen_user_topic_ref(
         ++i;
     }
 
-    std::cout << "\ni = " << i <<"\nTime taken (sec): "
-              << std::chrono::duration_cast<std::chrono::seconds>
-                      (std::chrono::steady_clock::now() - begin).count()
-              << "\n"
-              << std::endl;
+    std::cout << "\ni = " << i << std::endl;
+    tmr.finish();
+
     return user_topic_ref;
 }
 
@@ -276,7 +269,7 @@ ad_map gen_ad_map()
     std::string document_id;
     std::string others;
 
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    Timer tmr;
     std::cout << "Start processing " << filename << std::endl;
 
     std::ifstream file(filename, std::ios_base::in | std::ios_base::binary);
@@ -305,12 +298,8 @@ ad_map gen_ad_map()
     //Cleanup
     file.close();
 
-    std::cout << "\nrow_count = " << row_count
-              << "\nTime taken (sec): "
-              << std::chrono::duration_cast<std::chrono::seconds>
-                      (std::chrono::steady_clock::now() - begin).count()
-              << "\n"
-              << std::endl;
+    std::cout << "\nrow_count = " << row_count << std::endl;
+    tmr.finish();
 
     return ad_map;
 };
