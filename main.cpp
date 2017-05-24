@@ -152,10 +152,10 @@ void gen_user_topic_map(
         std::getline(instream, document_id, ',');
         std::getline(instream, others);
 
-        auto user = uuid_map.find(uuid);  // convert string uuid to int uid to save memory
+        auto user = uuid_map.data()->find(uuid);  // convert string uuid to int uid to save memory
         // if the document has topics associated with it
         auto document = (*doc_topic_map).find(stoi(document_id));
-        if (user != uuid_map.end() && document != (*doc_topic_map).end()) {
+        if (user != uuid_map.data()->end() && document != (*doc_topic_map).end()) {
             for (auto &t: document->second) {
                 //if user topic exists in the reference
                 auto user_topic = (*user_topic_ref).find(std::make_pair(user->second, t.first));

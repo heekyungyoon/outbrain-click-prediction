@@ -53,20 +53,29 @@ public:
 };
 
 
-std::unordered_map<std::string, int> uuid_map;
-
-
-int get_uid(std::string &uuid) {
-    int uid;
-    auto pair = uuid_map.find(uuid);
-    if (pair != uuid_map.end()) {
-        uid = pair->second;
-    } else {
-        uid = uuid_map.size();
-        uuid_map.insert(make_pair(uuid, uid));
+class UuidMap {
+public:
+    std::unordered_map<std::string, int> map;
+    int get_uid(std::string &uuid) {
+        int uid;
+        auto pair = map.find(uuid);
+        if (pair != map.end()) {
+            uid = pair->second;
+        } else {
+            uid = map.size();
+            map.insert(make_pair(uuid, uid));
+        }
+        return uid;
     }
-    return uid;
-}
+
+    std::unordered_map<std::string, int>* data() {
+        return &map;
+    };
+
+};
+
+
+UuidMap uuid_map;
 
 
 std::unordered_map<std::string, int> entity_map;
@@ -121,7 +130,7 @@ display_map gen_display_map()
         std::getline(instream, uuid, ',');
         std::getline(instream, document_id, ',');
         std::getline(instream, others);
-        int uid = get_uid(uuid);
+        int uid = uuid_map.get_uid(uuid);
 
         //insert all display ids to display map
         display_map.insert({stoi(display_id), std::make_pair(uid, stoi(document_id))});
