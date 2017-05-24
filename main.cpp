@@ -12,13 +12,43 @@
 #include "util/data.h"
 
 
-std::unordered_map<int, std::vector<int>> gen_ad_characteristic_map(
+typedef std::unordered_map<int, std::vector<int>> ad_characterstic_map;
+
+ad_characterstic_map gen_ad_characteristic_map(
+        std::string filename,
+        bool is_entity
+);
+std::map<std::string, ad_characterstic_map> gen_ad_characteristic_map_set(
+        std::string doc_construct
+);
+void gen_user_topic_map(
+        int tid,
+        std::unordered_map<std::pair<int, int>, float, pairhash> *user_topic_map,
+        std::string filename,
+        int start_row,
+        int end_row,
+        std::unordered_map<int, std::vector<std::pair<int, float>>> *doc_topic_map,
+        std::unordered_map<std::pair<int, int>, float, pairhash> *user_topic_ref);
+std::vector<std::unordered_map<std::pair<int, int>, float, pairhash>> gen_user_topic_map_set(
+        std::string doc_filename,
+std::unordered_map<int, std::pair<int, int>> *display_map,
+bool is_entity
+);
+void write_user_ad_interaction_on_topic(
+        std::string doc_type,
+        std::string doc_file,
+        std::unordered_map<int, std::pair<int, int>> *display_map,
+        std::unordered_map<int, ad> *ad_map
+)
+
+
+ad_characterstic_map gen_ad_characteristic_map(
         std::string filename,
         bool is_entity
 )
 {
     //read promoted_content
-    std::unordered_map<int, std::vector<int>> ad_characteristic_map;
+    ad_characterstic_map ad_characteristic_map;
     std::string id1;
     std::string id2;
     std::string others;
@@ -78,12 +108,12 @@ std::unordered_map<int, std::vector<int>> gen_ad_characteristic_map(
 };
 
 
-std::map<std::string, std::unordered_map<int, std::vector<int>>> gen_ad_characteristic_map_set(
+std::map<std::string, ad_characterstic_map> gen_ad_characteristic_map_set(
         std::string doc_construct
 ) {
     std::string top_k = "5";
     bool is_entity = false;
-    std::map<std::string, std::unordered_map<int, std::vector<int>>> gen_ad_characteristic_map_set;
+    std::map<std::string, ad_characterstic_map> ad_characteristic_map_set;
     std::string ad_constructs[] = {"campaign", "advertiser"};
     //std::string ad_constructs[] = {"advertiser"};
     if (doc_construct == "entity") {
@@ -91,10 +121,10 @@ std::map<std::string, std::unordered_map<int, std::vector<int>>> gen_ad_characte
     }
     for (std::string &ad_c: ad_constructs) {
         std::cout << "Generating map for " << ad_c + doc_construct << std::endl;
-        gen_ad_characteristic_map_set[ad_c + doc_construct] = gen_ad_characteristic_map(
+        ad_characteristic_map_set[ad_c + doc_construct] = gen_ad_characteristic_map(
                 "cache/" + ad_c + "_top" + top_k + "_" + doc_construct + ".csv.gz", is_entity);
     }
-    return gen_ad_characteristic_map_set;
+    return ad_characteristic_map_set;
 };
 
 
@@ -232,7 +262,7 @@ int calc_user_ad_interaction_topic(
         std::string ad_type,
         std::string click_file,
         int (*get_key) (ad),
-        std::map<std::string, std::unordered_map<int, std::vector<int>>> *ad_topic_map_set,
+        std::map<std::string, ad_characterstic_map> *ad_topic_map_set,
         std::vector<std::unordered_map<std::pair<int, int>, float, pairhash>> *user_topic_map_set,
         std::unordered_map<int, ad> *ad_map,
         std::unordered_map<int, std::pair<int, int>> *display_map
@@ -244,7 +274,7 @@ int calc_user_ad_interaction_topic(
     std::string display_id;
     std::string ad_id;
     std::string others;
-    std::unordered_map<int, std::vector<int>> vec = (*ad_topic_map_set)[ad_type+doc_type];
+    ad_characterstic_map vec = (*ad_topic_map_set)[ad_type+doc_type];
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     std::cout << "Start generating " << outfile_name << std::endl;
 
@@ -330,7 +360,7 @@ void write_user_ad_interaction_on_topic(
     }
     // I. Read file
     // <advertiser_id, <topic_id, confidence_level>>
-    std::map<std::string, std::unordered_map<int, std::vector<int>>> ad_char_set = gen_ad_characteristic_map_set(
+    std::map<std::string, ad_characterstic_map> ad_char_set = gen_ad_characteristic_map_set(
             doc_type);
 
     // <<uuid, topic_id>, sum_confidence_level>
