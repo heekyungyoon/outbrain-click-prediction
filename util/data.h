@@ -1,3 +1,6 @@
+#ifndef DATA_H
+#define DATA_H
+
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
@@ -280,4 +283,5 @@ std::unordered_map<int, ad> gen_ad_map()
     return ad_map;
 };
 
+#endif
 
