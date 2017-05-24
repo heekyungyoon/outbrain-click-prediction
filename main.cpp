@@ -12,13 +12,6 @@
 #include "util/data.h"
 
 
-typedef std::unordered_map<int, std::vector<int>> ad_characterstic_map;
-typedef std::unordered_map<std::pair<int, int>, float, pairhash> user_topic_map;
-typedef std::unordered_map<int, std::vector<std::pair<int, float>>> document_topic_map;
-typedef std::unordered_map<int, std::pair<int, int>> display_map;
-typedef std::unordered_map<int, ad> ad_map;
-
-
 ad_characterstic_map gen_ad_characteristic_map(std::string filename, bool is_entity);
 std::map<std::string, ad_characterstic_map> gen_ad_characteristic_map_set(std::string doc_construct);
 void gen_user_topic_map(

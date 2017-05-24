@@ -13,6 +13,13 @@
 #include <chrono>
 
 
+typedef std::unordered_map<int, std::vector<int>> ad_characterstic_map;
+typedef std::unordered_map<std::pair<int, int>, float, pairhash> user_topic_map;
+typedef std::unordered_map<int, std::vector<std::pair<int, float>>> document_topic_map;
+typedef std::unordered_map<int, std::pair<int, int>> display_map;
+typedef std::unordered_map<int, ad> ad_map;
+
+
 std::unordered_map<std::string, int> uuid_map;
 
 
@@ -71,10 +78,10 @@ int get_adv_id(ad ad) {
     return ad.advertiser_id;
 }
 
-std::unordered_map<int, std::pair<int, int>> gen_display_map()
+display_map gen_display_map()
 {
     // read events to get uuid and document id from clicks_train
-    std::unordered_map<int, std::pair<int, int>> display_map;
+    display_map display_map;
     std::string filename = "../input/events.csv.gz";
     std::string display_id;
     std::string uuid;
@@ -120,12 +127,12 @@ std::unordered_map<int, std::pair<int, int>> gen_display_map()
 }
 
 
-std::unordered_map<int, std::vector<std::pair<int, float>>> gen_doc_topic_map(
+document_topic_map gen_doc_topic_map(
         std::string filename,
         bool is_entity
 )
 {
-    std::unordered_map<int, std::vector<std::pair<int, float>>> doc_topic;
+    document_topic_map doc_topic;
     std::string document_id;
     std::string topic_id;
     std::string confidence_level;
@@ -191,12 +198,12 @@ std::unordered_map<int, std::vector<std::pair<int, float>>> gen_doc_topic_map(
 };
 
 
-std::unordered_map<std::pair<int, int>, float, pairhash> gen_user_topic_ref(
-        std::unordered_map<int, std::pair<int, int>> *display_map,
-        std::unordered_map<int, std::vector<std::pair<int, float>>> *doc_topic_map)
+user_topic_map gen_user_topic_ref(
+        display_map *display_map,
+        document_topic_map *doc_topic_map)
 {
     // read events to get uuid and document id from clicks_train
-    std::unordered_map<std::pair<int, int>, float, pairhash> user_topic_ref;
+    user_topic_map user_topic_ref;
 
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     std::cout << "Start generating user topic reference map " << std::endl;
@@ -232,10 +239,10 @@ std::unordered_map<std::pair<int, int>, float, pairhash> gen_user_topic_ref(
 
 
 
-std::unordered_map<int, ad> gen_ad_map()
+ad_map gen_ad_map()
 {
     //read promoted_content
-    std::unordered_map<int, ad> ad_map;
+    ad_map ad_map;
 
     std::string filename = "../input/promoted_content.csv.gz";
     std::string ad_id;
