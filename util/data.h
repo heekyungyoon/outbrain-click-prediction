@@ -23,6 +23,13 @@ public:
 };
 
 
+struct ad {
+    int document_id;
+    int campaign_id;
+    int advertiser_id;
+};
+
+
 typedef std::unordered_map<int, std::vector<int>> ad_characterstic_map;
 typedef std::unordered_map<std::pair<int, int>, float, pairhash> user_topic_map;
 typedef std::unordered_map<int, std::vector<std::pair<int, float>>> document_topic_map;
@@ -60,13 +67,6 @@ int get_entity_id(std::string &uuid) {
     }
     return uid;
 }
-
-
-struct ad {
-    int document_id;
-    int campaign_id;
-    int advertiser_id;
-};
 
 
 int get_camp_id(ad ad) {
