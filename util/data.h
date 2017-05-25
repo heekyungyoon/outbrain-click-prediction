@@ -30,6 +30,16 @@ struct ad {
 };
 
 
+int get_camp_id(ad ad) {
+    return ad.campaign_id;
+}
+
+
+int get_adv_id(ad ad) {
+    return ad.advertiser_id;
+}
+
+
 typedef std::unordered_map<int, std::vector<int>> ad_characterstic_map;
 typedef std::unordered_map<std::pair<int, int>, float, pairhash> user_characteristic_map;
 typedef std::unordered_map<int, std::vector<std::pair<int, float>>> document_topic_map;
@@ -78,15 +88,6 @@ public:
 IdMap uuid_map;
 IdMap entity_map;
 
-
-int get_camp_id(ad ad) {
-    return ad.campaign_id;
-}
-
-
-int get_adv_id(ad ad) {
-    return ad.advertiser_id;
-}
 
 display_map gen_display_map()
 {
