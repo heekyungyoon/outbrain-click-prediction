@@ -8,12 +8,8 @@
 #include "util/data.h"
 
 
-IdMap uuid_map;
-IdMap entity_map;
-
-
 ad_characterstic_map gen_ad_characteristic_map(std::string filename, bool is_entity);
-std::map<std::string, ad_characterstic_map> gen_ad_characteristic_map_set(std::string doc_construct);
+std::map<std::string, ad_characterstic_map> gen_ad_characteristic_map_set(std::string doc_construct, IdMap &entity_map);
 void gen_user_topic_map(
         int tid,
         user_characteristic_map *user_topic_map,
@@ -21,13 +17,18 @@ void gen_user_topic_map(
         int start_row,
         int end_row,
         document_topic_map *doc_topic_map,
-        user_characteristic_map *user_topic_ref);
-std::vector<user_characteristic_map> gen_user_topic_map_set(std::string doc_filename, display_map *display_map, bool is_entity);
+        user_characteristic_map *user_topic_ref,
+        IdMap &uuid_map,
+        IdMap &entity_map);
+std::vector<user_characteristic_map> gen_user_topic_map_set(
+        IdMap &uuid_map, std::string doc_filename, display_map *display_map, bool is_entity, IdMap &entity_map);
 void write_user_ad_interaction_on_topic(
         std::string doc_type,
         std::string doc_file,
         display_map *display_map,
-        ad_map *ad_map
+        ad_map *ad_map,
+        IdMap &entity_map,
+        IdMap &uuid_map
 );
 
 
@@ -95,7 +96,8 @@ ad_characterstic_map gen_ad_characteristic_map(
 
 
 std::map<std::string, ad_characterstic_map> gen_ad_characteristic_map_set(
-        std::string doc_construct
+        std::string doc_construct,
+        IdMap &entity_map
 ) {
     std::string top_k = "5";
     bool is_entity = false;
@@ -121,7 +123,9 @@ void gen_user_topic_map(
         int start_row,
         int end_row,
         document_topic_map *doc_topic_map,
-        user_characteristic_map *user_topic_ref)
+        user_characteristic_map *user_topic_ref,
+        IdMap &uuid_map,
+        IdMap &entity_map)
 {
     std::string uuid;
     std::string document_id;
@@ -190,9 +194,11 @@ void gen_user_topic_map(
 
 
 std::vector<user_characteristic_map> gen_user_topic_map_set(
+        IdMap &uuid_map,
         std::string doc_filename,
         display_map *display_map,
-        bool is_entity
+        bool is_entity,
+        IdMap &entity_map
 )
 {
     // 1. generate document topic map
@@ -228,7 +234,9 @@ std::vector<user_characteristic_map> gen_user_topic_map_set(
                                       (i * num_row + 1),
                                       ((1 + i) * num_row),
                                       &doc_topic_map,
-                                      &user_topic_ref));
+                                      &user_topic_ref,
+                                      uuid_map,
+                                      entity_map));
     }
 
     //finish thread
@@ -333,7 +341,9 @@ void write_user_ad_interaction_on_topic(
         std::string doc_type,
         std::string doc_file,
         display_map *display_map,
-        ad_map *ad_map
+        ad_map *ad_map,
+        IdMap &entity_map,
+        IdMap &uuid_map
 ){
     bool is_entity = false;
     if (doc_type == "entity") {
@@ -342,11 +352,11 @@ void write_user_ad_interaction_on_topic(
     // I. Read file
     // <advertiser_id, <topic_id, confidence_level>>
     std::map<std::string, ad_characterstic_map> ad_char_set = gen_ad_characteristic_map_set(
-            doc_type);
+            doc_type, entity_map);
 
     // <<uuid, topic_id>, sum_confidence_level>
     std::vector<user_characteristic_map> user_topic_map_set = gen_user_topic_map_set(
-            doc_file, display_map, is_entity);
+            uuid_map, doc_file, display_map, is_entity, entity_map);
 
     // II. calculate user-document interaction in terms of topic
     calc_user_ad_interaction_topic(doc_type, "advertiser", "train", get_adv_id, &ad_char_set, &user_topic_map_set, ad_map, display_map);
@@ -357,6 +367,9 @@ void write_user_ad_interaction_on_topic(
 
 
 int main() {
+    IdMap uuid_map;
+    IdMap entity_map;
+
     std::map<std::string, std::string> doc_files = {
             {"topic", "../input/documents_topics.csv.gz"},
             {"entity", "../input/documents_entities.csv.gz"},
@@ -368,11 +381,11 @@ int main() {
     ad_map ad_map = gen_ad_map();
 
     ////user ad interaction on topic
-    write_user_ad_interaction_on_topic("topic", doc_files["topic"], &display_map, &ad_map);
+    write_user_ad_interaction_on_topic("topic", doc_files["topic"], &display_map, &ad_map, entity_map, uuid_map);
     ////user ad interaction on entity
-    write_user_ad_interaction_on_topic("entity", doc_files["entity"], &display_map, &ad_map);
+    write_user_ad_interaction_on_topic("entity", doc_files["entity"], &display_map, &ad_map, entity_map, uuid_map);
     ////user ad interaction on category
-    write_user_ad_interaction_on_topic("category", doc_files["category"], &display_map, &ad_map);
+    write_user_ad_interaction_on_topic("category", doc_files["category"], &display_map, &ad_map, entity_map, uuid_map);
 
     return 0;
 }
