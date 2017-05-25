@@ -3,8 +3,8 @@
 #include "util/data.h"
 
 
-ad_characterstic_map gen_ad_characteristic_map(std::string filename, bool is_entity);
-std::map<std::string, ad_characterstic_map> gen_ad_characteristic_map_set(std::string doc_construct, IdMap &entity_map);
+ad_characteristic_map gen_ad_characteristic_map(std::string filename, bool is_entity);
+std::map<std::string, ad_characteristic_map> gen_ad_characteristic_map_set(std::string doc_construct, IdMap &entity_map);
 void gen_user_topic_map(
         int tid,
         user_characteristic_map *user_topic_map,
@@ -27,14 +27,14 @@ void write_user_ad_interaction_on_topic(
 );
 
 
-ad_characterstic_map gen_ad_characteristic_map(
+ad_characteristic_map gen_ad_characteristic_map(
         std::string filename,
         bool is_entity,
         IdMap &entity_map
 )
 {
     //read promoted_content
-    ad_characterstic_map ad_characteristic_map;
+    ad_characteristic_map ad_characteristic_map;
     std::string id1;
     std::string id2;
     std::string others;
@@ -90,13 +90,13 @@ ad_characterstic_map gen_ad_characteristic_map(
 };
 
 
-std::map<std::string, ad_characterstic_map> gen_ad_characteristic_map_set(
+std::map<std::string, ad_characteristic_map> gen_ad_characteristic_map_set(
         std::string doc_construct,
         IdMap &entity_map
 ) {
     std::string top_k = "5";
     bool is_entity = false;
-    std::map<std::string, ad_characterstic_map> ad_characteristic_map_set;
+    std::map<std::string, ad_characteristic_map> ad_characteristic_map_set;
     std::string ad_constructs[] = {"campaign", "advertiser"};
     //std::string ad_constructs[] = {"advertiser"};
     if (doc_construct == "entity") {
@@ -247,7 +247,7 @@ int calc_user_ad_interaction_topic(
         std::string ad_type,
         std::string click_file,
         int (*get_key) (ad),
-        std::map<std::string, ad_characterstic_map> *ad_topic_map_set,
+        std::map<std::string, ad_characteristic_map> *ad_topic_map_set,
         std::vector<user_characteristic_map> *user_topic_map_set,
         ad_map *ad_map,
         display_map *display_map
@@ -259,7 +259,7 @@ int calc_user_ad_interaction_topic(
     std::string display_id;
     std::string ad_id;
     std::string others;
-    ad_characterstic_map vec = (*ad_topic_map_set)[ad_type+doc_type];
+    ad_characteristic_map vec = (*ad_topic_map_set)[ad_type+doc_type];
 
     Timer tmr;
     std::cout << "Start generating " << outfile_name << std::endl;
@@ -346,7 +346,7 @@ void write_user_ad_interaction_on_topic(
     }
     // I. Read file
     // <advertiser_id, <topic_id, confidence_level>>
-    std::map<std::string, ad_characterstic_map> ad_char_set = gen_ad_characteristic_map_set(
+    std::map<std::string, ad_characteristic_map> ad_char_set = gen_ad_characteristic_map_set(
             doc_type, entity_map);
 
     // <<uuid, topic_id>, sum_confidence_level>
@@ -370,9 +370,7 @@ int main() {
             {"entity", "../input/documents_entities.csv.gz"},
             {"category", "../input/documents_categories.csv.gz"}};
 
-    // <display id, <uuid, document_id>>
     display_map display_map = gen_display_map(uuid_map);
-    // <ad_id, ad>
     ad_map ad_map = gen_ad_map();
 
     ////user ad interaction on topic

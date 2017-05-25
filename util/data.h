@@ -50,11 +50,15 @@ int get_adv_id(ad ad) {
     return ad.advertiser_id;
 }
 
-
-typedef std::unordered_map<int, std::vector<int>> ad_characterstic_map;
+// <ad_id, characteristic_id>    cf. characteristic_id = {topic_id, entity_id, category_id}
+typedef std::unordered_map<int, std::vector<int>> ad_characteristic_map;
+// <<uuid, characteristic_id>, sum_confidence_level>
 typedef std::unordered_map<std::pair<int, int>, float, pairhash> user_characteristic_map;
+// <document_id, <topic_id, confidence_level>>
 typedef std::unordered_map<int, std::vector<std::pair<int, float>>> document_topic_map;
+// <display id, <uuid, document_id>>
 typedef std::unordered_map<int, std::pair<int, int>> display_map;
+// <ad_id, ad>
 typedef std::unordered_map<int, ad> ad_map;
 
 
