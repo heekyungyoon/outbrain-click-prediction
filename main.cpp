@@ -18,8 +18,8 @@ void gen_user_topic_map(
         int end_row,
         document_topic_map *doc_topic_map,
         user_characteristic_map *user_topic_ref,
-        IdMap &uuid_map,
-        IdMap &entity_map);
+        IdMap *uuid_map,
+        IdMap *entity_map);
 std::vector<user_characteristic_map> gen_user_topic_map_set(
         IdMap &uuid_map, std::string doc_filename, display_map *display_map, bool is_entity, IdMap &entity_map);
 void write_user_ad_interaction_on_topic(
@@ -124,8 +124,8 @@ void gen_user_topic_map(
         int end_row,
         document_topic_map *doc_topic_map,
         user_characteristic_map *user_topic_ref,
-        IdMap &uuid_map,
-        IdMap &entity_map)
+        IdMap *uuid_map,
+        IdMap *entity_map)
 {
     std::string uuid;
     std::string document_id;
@@ -157,10 +157,10 @@ void gen_user_topic_map(
         std::getline(instream, document_id, ',');
         std::getline(instream, others);
 
-        auto user = uuid_map.data()->find(uuid);  // convert string uuid to int uid to save memory
+        auto user = uuid_map->data()->find(uuid);  // convert string uuid to int uid to save memory
         // if the document has topics associated with it
         auto document = (*doc_topic_map).find(stoi(document_id));
-        if (user != uuid_map.data()->end() && document != (*doc_topic_map).end()) {
+        if (user != uuid_map->data()->end() && document != (*doc_topic_map).end()) {
             for (auto &t: document->second) {
                 //if user topic exists in the reference
                 auto user_topic = (*user_topic_ref).find(std::make_pair(user->second, t.first));
@@ -235,8 +235,8 @@ std::vector<user_characteristic_map> gen_user_topic_map_set(
                                       ((1 + i) * num_row),
                                       &doc_topic_map,
                                       &user_topic_ref,
-                                      uuid_map,
-                                      entity_map));
+                                      &uuid_map,
+                                      &entity_map));
     }
 
     //finish thread
