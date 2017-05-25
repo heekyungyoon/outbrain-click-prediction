@@ -53,10 +53,10 @@ public:
 };
 
 
-class UuidMap {
+class IdMap {
 public:
     std::unordered_map<std::string, int> map;
-    int get_uid(std::string &uuid) {
+    int get_id(std::string &uuid) {
         int uid;
         auto pair = map.find(uuid);
         if (pair != map.end()) {
@@ -75,23 +75,8 @@ public:
 };
 
 
-UuidMap uuid_map;
-
-
-std::unordered_map<std::string, int> entity_map;
-
-
-int get_entity_id(std::string &uuid) {
-    int uid;
-    auto pair = entity_map.find(uuid);
-    if (pair != entity_map.end()) {
-        uid = pair->second;
-    } else {
-        uid = entity_map.size();
-        entity_map.insert(make_pair(uuid, uid));
-    }
-    return uid;
-}
+IdMap uuid_map;
+IdMap entity_map;
 
 
 int get_camp_id(ad ad) {
@@ -130,7 +115,7 @@ display_map gen_display_map()
         std::getline(instream, uuid, ',');
         std::getline(instream, document_id, ',');
         std::getline(instream, others);
-        int uid = uuid_map.get_uid(uuid);
+        int uid = uuid_map.get_id(uuid);
 
         //insert all display ids to display map
         display_map.insert({stoi(display_id), std::make_pair(uid, stoi(document_id))});
@@ -194,7 +179,7 @@ document_topic_map gen_doc_topic_map(
         while(std::getline(topic_instream, document_id, ',')) {
             std::getline(topic_instream, topic_id, ',');
             std::getline(topic_instream, confidence_level);
-            int entity_id = get_entity_id(topic_id);
+            int entity_id = entity_id.get_id(topic_id);
 
             auto item = doc_topic.find(stoi(document_id));
             if (item != doc_topic.end()) {
