@@ -1,11 +1,7 @@
 #ifndef DATA_H
 #define DATA_H
 
-#include <fstream>
 #include <unordered_map>
-#include <boost/iostreams/filtering_streambuf.hpp>
-#include <boost/iostreams/copy.hpp>
-#include <boost/iostreams/filter/gzip.hpp>
 #include <map>
 #include <unordered_map>
 #include <vector>
@@ -80,21 +76,13 @@ display_map gen_display_map(IdMap &uuid_map)
 
     Timer tmr;
     std::cout << "Start processing " << filename << std::endl;
-
-    std::ifstream file(filename, std::ios_base::in | std::ios_base::binary);
-    boost::iostreams::filtering_streambuf<boost::iostreams::input> inbuf;
-    inbuf.push(boost::iostreams::gzip_decompressor());
-    inbuf.push(file);
-    std::istream instream(&inbuf);
-
-    std::getline(instream, others);
-    std::cout << "  Headers: " << others << std::endl;
+    CsvGzReader file(filename);
 
     int i = 0; //rows
-    while(std::getline(instream, display_id, ',')) {
-        std::getline(instream, uuid, ',');
-        std::getline(instream, document_id, ',');
-        std::getline(instream, others);
+    while(file.getline(&display_id, ',')) {
+        file.getline(&uuid, ',');
+        file.getline(&document_id, ',');
+        file.getline(&others);
         int uid = uuid_map.get_id(uuid);
 
         //insert all display ids to display map
@@ -105,9 +93,6 @@ display_map gen_display_map(IdMap &uuid_map)
         std::cout.flush();
         ++i;
     }
-
-    file.close();
-
     std::cout << "\ni = " << i << std::endl;
     tmr.finish();
 
@@ -173,10 +158,6 @@ document_topic_map gen_doc_topic_map(
             ++i;
         }
     }
-
-
-    topic_file.close();
-
     std::cout << "\ni = " << i << std::endl;
     tmr.finish();
 
@@ -238,20 +219,14 @@ ad_map gen_ad_map()
     Timer tmr;
     std::cout << "Start processing " << filename << std::endl;
 
-    std::ifstream file(filename, std::ios_base::in | std::ios_base::binary);
-    boost::iostreams::filtering_streambuf<boost::iostreams::input> inbuf;
-    inbuf.push(boost::iostreams::gzip_decompressor());
-    inbuf.push(file);
-    std::istream instream(&inbuf);
-    std::getline(instream, others);
-    std::cout << "  Headers: " << others << std::endl;
+    CsvGzReader file(filename);
 
     //generate ad topic map set
     int row_count = 0; //processed rows
-    while(std::getline(instream, ad_id, ',')) {
-        std::getline(instream, document_id, ',');
-        std::getline(instream, campaign_id, ',');
-        std::getline(instream, advertiser_id);
+    while(file.getline(&ad_id, ',')) {
+        file.getline(&document_id, ',');
+        file.getline(&campaign_id, ',');
+        file.getline(&advertiser_id);
 
         ad promoted_ad;
         promoted_ad.document_id = stoi(document_id);
@@ -260,10 +235,6 @@ ad_map gen_ad_map()
         ad_map.insert({stoi(ad_id), promoted_ad});
         ++row_count;
     }
-
-    //Cleanup
-    file.close();
-
     std::cout << "\nrow_count = " << row_count << std::endl;
     tmr.finish();
 

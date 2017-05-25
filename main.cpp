@@ -41,20 +41,13 @@ ad_characteristic_map gen_ad_characteristic_map(
 
     Timer tmr;
     std::cout << "Start processing " << filename << std::endl;
-
-    std::ifstream file(filename, std::ios_base::in | std::ios_base::binary);
-    boost::iostreams::filtering_streambuf<boost::iostreams::input> inbuf;
-    inbuf.push(boost::iostreams::gzip_decompressor());
-    inbuf.push(file);
-    std::istream instream(&inbuf);
-    std::getline(instream, others);
-    std::cout << "  Headers: " << others << std::endl;
+    CsvGzReader file(filename);
 
     //generate ad topic map set
     int row_count = 0; //processed rows
     if (is_entity == false) {
-        while (std::getline(instream, id1, ',')) {
-            std::getline(instream, id2);
+        while (file.getline(&id1, ',')) {
+            file.getline(&id2);
 
             auto id1_value = ad_characteristic_map.find(stoi(id1));
             if (id1_value != ad_characteristic_map.end()) {
@@ -67,8 +60,8 @@ ad_characteristic_map gen_ad_characteristic_map(
             ++row_count;
         }
     } else {
-        while (std::getline(instream, id1, ',')) {
-            std::getline(instream, id2);
+        while (file.getline(&id1, ',')) {
+            file.getline(&id2);
             int entity_id = entity_map.get_id(id2);
             auto id1_value = ad_characteristic_map.find(stoi(id1));
             if (id1_value != ad_characteristic_map.end()) {
@@ -129,28 +122,19 @@ void gen_user_topic_map(
     // I. calculate user-topic interaction based on page_views
     Timer tmr;
     std::cout << tid << "Start processing " << filename << std::endl;
-
-    std::ifstream file(filename, std::ios_base::in | std::ios_base::binary);
-    boost::iostreams::filtering_streambuf<boost::iostreams::input> inbuf;
-    inbuf.push(boost::iostreams::gzip_decompressor());
-    inbuf.push(file);
-    std::istream instream(&inbuf);
-
-    // transform to unordered map
-    std::getline(instream, others);
-    std::cout << "  Headers: " << others << std::endl;
+    CsvGzReader file(filename);
 
     // skip rows until start row
     int i = 0; //all rows
     while(i < start_row - 1) {
-        std::getline(instream, others);
+        file.getline(&others);
         ++i;
     }
     // start processing
     int row_count = 0; //processed rows
-    while(std::getline(instream, uuid, ',') && i < end_row) {
-        std::getline(instream, document_id, ',');
-        std::getline(instream, others);
+    while(file.getline(&uuid, ',') && i < end_row) {
+        file.getline(&document_id, ',');
+        file.getline(&others);
 
         auto user = uuid_map->data()->find(uuid);  // convert string uuid to int uid to save memory
         // if the document has topics associated with it
@@ -179,9 +163,6 @@ void gen_user_topic_map(
         ++row_count;
         ++i;
     }
-    //Cleanup
-    file.close();
-
     std::cout << "\nrow_count = " << row_count <<" (" << start_row << " - " << end_row << ")" << std::endl;
     tmr.finish();
 }
@@ -263,16 +244,7 @@ int calc_user_ad_interaction_topic(
 
     Timer tmr;
     std::cout << "Start generating " << outfile_name << std::endl;
-
-    std::ifstream test_file(filename, std::ios_base::in | std::ios_base::binary);
-    boost::iostreams::filtering_streambuf<boost::iostreams::input> test_inbuf;
-    test_inbuf.push(boost::iostreams::gzip_decompressor());
-    test_inbuf.push(test_file);
-    std::istream test_instream(&test_inbuf);
-
-    // transform to unordered map
-    std::getline(test_instream, others);
-    std::cout << "  Headers: " << others << std::endl;
+    CsvGzReader file(filename);
 
     // write interaction weights
     std::ofstream outfile(outfile_name, std::ios_base::out | std::ios_base::binary);
@@ -287,8 +259,8 @@ int calc_user_ad_interaction_topic(
     // read clicks_train row
     // save interaction to separate file
     int i = 0;
-    while(std::getline(test_instream, display_id, ',')) {
-        std::getline(test_instream, ad_id);
+    while(file.getline(&display_id, ',')) {
+        file.getline(&ad_id);
         //calculate weight
         float weight = 0.0;
         // if uuid and document id related to the display_id exists
@@ -322,9 +294,6 @@ int calc_user_ad_interaction_topic(
         }
         ++i;
     }
-
-    test_file.close();
-
     std::cout << "\ni = " << i << std::endl;
     tmr.finish();
 
