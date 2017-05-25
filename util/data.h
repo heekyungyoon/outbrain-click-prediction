@@ -13,6 +13,28 @@
 #include "helpers.h"
 
 
+class IdMap {
+public:
+    std::unordered_map<std::string, int> map;
+    int get_id(std::string &uuid) {
+        int uid;
+        auto pair = map.find(uuid);
+        if (pair != map.end()) {
+            uid = pair->second;
+        } else {
+            uid = map.size();
+            map.insert(make_pair(uuid, uid));
+        }
+        return uid;
+    }
+
+    std::unordered_map<std::string, int>* data() {
+        return &map;
+    };
+
+};
+
+
 struct ad {
     int document_id;
     int campaign_id;
@@ -37,26 +59,10 @@ typedef std::unordered_map<int, std::pair<int, int>> display_map;
 typedef std::unordered_map<int, ad> ad_map;
 
 
-class IdMap {
-public:
-    std::unordered_map<std::string, int> map;
-    int get_id(std::string &uuid) {
-        int uid;
-        auto pair = map.find(uuid);
-        if (pair != map.end()) {
-            uid = pair->second;
-        } else {
-            uid = map.size();
-            map.insert(make_pair(uuid, uid));
-        }
-        return uid;
-    }
-
-    std::unordered_map<std::string, int>* data() {
-        return &map;
-    };
-
-};
+display_map gen_display_map(IdMap &uuid_map);
+document_topic_map gen_doc_topic_map(std::string filename, bool is_entity, IdMap &entity_map);
+user_characteristic_map gen_user_topic_ref(display_map *display_map, document_topic_map *doc_topic_map);
+ad_map gen_ad_map();
 
 
 display_map gen_display_map(IdMap &uuid_map)
