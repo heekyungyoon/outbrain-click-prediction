@@ -1,12 +1,8 @@
 #include <fstream>
 #include <iostream>
-#include <boost/iostreams/filtering_streambuf.hpp>
-#include <boost/iostreams/copy.hpp>
-#include <boost/iostreams/filter/gzip.hpp>
 #include <map>
 #include <unordered_map>
 #include <vector>
-#include <chrono>
 #include <thread>
 #include <future>
 #include "util/data.h"
