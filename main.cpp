@@ -12,6 +12,10 @@
 #include "util/data.h"
 
 
+IdMap uuid_map;
+IdMap entity_map;
+
+
 ad_characterstic_map gen_ad_characteristic_map(std::string filename, bool is_entity);
 std::map<std::string, ad_characterstic_map> gen_ad_characteristic_map_set(std::string doc_construct);
 void gen_user_topic_map(
@@ -33,7 +37,8 @@ void write_user_ad_interaction_on_topic(
 
 ad_characterstic_map gen_ad_characteristic_map(
         std::string filename,
-        bool is_entity
+        bool is_entity,
+        IdMap &entity_map
 )
 {
     //read promoted_content
@@ -72,7 +77,7 @@ ad_characterstic_map gen_ad_characteristic_map(
     } else {
         while (std::getline(instream, id1, ',')) {
             std::getline(instream, id2);
-            int entity_id = get_entity_id(id2);
+            int entity_id = entity_map.get_id(id2);
             auto id1_value = ad_characteristic_map.find(stoi(id1));
             if (id1_value != ad_characteristic_map.end()) {
                 id1_value->second.push_back(entity_id);
@@ -107,7 +112,7 @@ std::map<std::string, ad_characterstic_map> gen_ad_characteristic_map_set(
     for (std::string &ad_c: ad_constructs) {
         std::cout << "Generating map for " << ad_c + doc_construct << std::endl;
         ad_characteristic_map_set[ad_c + doc_construct] = gen_ad_characteristic_map(
-                "cache/" + ad_c + "_top" + top_k + "_" + doc_construct + ".csv.gz", is_entity);
+                "cache/" + ad_c + "_top" + top_k + "_" + doc_construct + ".csv.gz", is_entity, entity_map);
     }
     return ad_characteristic_map_set;
 };
@@ -196,7 +201,7 @@ std::vector<user_characteristic_map> gen_user_topic_map_set(
 {
     // 1. generate document topic map
     // <document_id, <topic_id, confidence_level>>
-    document_topic_map doc_topic_map = gen_doc_topic_map(doc_filename, is_entity);
+    document_topic_map doc_topic_map = gen_doc_topic_map(doc_filename, is_entity, entity_map);
 
     // 2. generate user topic reference map
     // <display_id, <uuid, document_id>>
@@ -362,7 +367,7 @@ int main() {
             {"category", "../input/documents_categories.csv.gz"}};
 
     // <display id, <uuid, document_id>>
-    display_map display_map = gen_display_map();
+    display_map display_map = gen_display_map(uuid_map);
     // <ad_id, ad>
     ad_map ad_map = gen_ad_map();
 

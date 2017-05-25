@@ -85,11 +85,7 @@ public:
 };
 
 
-IdMap uuid_map;
-IdMap entity_map;
-
-
-display_map gen_display_map()
+display_map gen_display_map(IdMap &uuid_map)
 {
     // read events to get uuid and document id from clicks_train
     display_map display_map;
@@ -138,7 +134,8 @@ display_map gen_display_map()
 
 document_topic_map gen_doc_topic_map(
         std::string filename,
-        bool is_entity
+        bool is_entity,
+        IdMap &entity_map
 )
 {
     document_topic_map doc_topic;
@@ -180,7 +177,7 @@ document_topic_map gen_doc_topic_map(
         while(std::getline(topic_instream, document_id, ',')) {
             std::getline(topic_instream, topic_id, ',');
             std::getline(topic_instream, confidence_level);
-            int entity_id = entity_id.get_id(topic_id);
+            int entity_id = entity_map.get_id(topic_id);
 
             auto item = doc_topic.find(stoi(document_id));
             if (item != doc_topic.end()) {
