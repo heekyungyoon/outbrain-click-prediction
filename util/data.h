@@ -175,7 +175,7 @@ user_characteristic_set gen_user_topic_ref(
     user_characteristic_set user_topic_ref;
 
     Timer tmr;
-    std::cout << "Start generating user topic reference map " << std::endl;
+    std::cout << "Start generating user topic reference set " << std::endl;
 
     int i = 0; //rows
     for(auto &display: *display_map) {
