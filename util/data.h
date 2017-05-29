@@ -1,8 +1,8 @@
 #ifndef DATA_H
 #define DATA_H
 
-#include <unordered_map>
 #include <map>
+#include <unordered_set>
 #include <unordered_map>
 #include <vector>
 #include "helpers.h"
@@ -49,6 +49,8 @@ int get_adv_id(ad ad) {
 // <ad_id, characteristic_id>    cf. characteristic_id = {topic_id, entity_id, category_id}
 typedef std::unordered_map<int, std::vector<int>> ad_characteristic_map;
 // <<uuid, characteristic_id>, sum_confidence_level>
+typedef std::unordered_set<std::pair<int, int>, pairhash> user_characteristic_set;
+// <<uuid, characteristic_id>, sum_confidence_level>
 typedef std::unordered_map<std::pair<int, int>, float, pairhash> user_characteristic_map;
 // <document_id, <topic_id, confidence_level>>
 typedef std::unordered_map<int, std::vector<std::pair<int, float>>> document_topic_map;
@@ -60,7 +62,7 @@ typedef std::unordered_map<int, ad> ad_map;
 
 display_map gen_display_map(IdMap &uuid_map);
 document_topic_map gen_doc_topic_map(std::string filename, bool is_entity, IdMap &entity_map);
-user_characteristic_map gen_user_topic_ref(display_map *display_map, document_topic_map *doc_topic_map);
+user_characteristic_set gen_user_topic_ref(display_map *display_map, document_topic_map *doc_topic_map);
 ad_map gen_ad_map();
 
 
@@ -165,12 +167,12 @@ document_topic_map gen_doc_topic_map(
 };
 
 
-user_characteristic_map gen_user_topic_ref(
+user_characteristic_set gen_user_topic_ref(
         display_map *display_map,
         document_topic_map *doc_topic_map)
 {
     // read events to get uuid and document id from clicks_train
-    user_characteristic_map user_topic_ref;
+    user_characteristic_set user_topic_ref;
 
     Timer tmr;
     std::cout << "Start generating user topic reference map " << std::endl;
@@ -185,7 +187,7 @@ user_characteristic_map gen_user_topic_ref(
                 //if user topic doesn't exist
                 auto user_topic = user_topic_ref.find(std::make_pair(display.second.first, t.first));
                 if (user_topic == user_topic_ref.end()) {
-                    user_topic_ref.insert({std::make_pair(display.second.first, t.first), 0});
+                    user_topic_ref.insert({std::make_pair(display.second.first, t.first)});
                 }
             }
         }

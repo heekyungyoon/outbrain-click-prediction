@@ -12,7 +12,7 @@ void gen_user_topic_map(
         int start_row,
         int end_row,
         document_topic_map *doc_topic_map,
-        user_characteristic_map *user_topic_ref,
+        user_characteristic_set *user_topic_ref,
         IdMap *uuid_map,
         IdMap *entity_map);
 std::vector<user_characteristic_map> gen_user_topic_map_set(
@@ -111,7 +111,7 @@ void gen_user_topic_map(
         int start_row,
         int end_row,
         document_topic_map *doc_topic_map,
-        user_characteristic_map *user_topic_ref,
+        user_characteristic_set *user_topic_ref,
         IdMap *uuid_map,
         IdMap *entity_map)
 {
@@ -183,7 +183,7 @@ std::vector<user_characteristic_map> gen_user_topic_map_set(
 
     // 2. generate user topic reference map
     // <display_id, <uuid, document_id>>
-    user_characteristic_map user_topic_ref = gen_user_topic_ref(
+    user_characteristic_set user_topic_ref = gen_user_topic_ref(
             display_map, &doc_topic_map);
 
     // 3. user topic map set
