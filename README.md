@@ -29,7 +29,7 @@ Make submission file
 
 
 ## Quick-start
-```$ g++ -std=c++14 main.cpp util/data.h util/helpers.h -o main -lboost_iostreams -lpthread```
+```$ g++ -std=c++14 main.cpp util/data.h util/data.cpp util/helpers.h -o main -lboost_iostreams -lpthread```
 
 Move to libffm directory:  
 ```$ make```  
